@@ -1,0 +1,52 @@
+---
+title: "p8131_stl2137_hw7"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lme4)
+library(tidyverse)
+```
+
+```{r}
+data <- read_csv("/Users/SabrinaLin/Documents/Spring_20_Biostat_Methods_2/Data/HW7-politeness_data.csv")
+```
+
+### Question 1
+1. Exploratory analysis: provide boxplots to show the relation between gen- der/attitude and pitch (ignoring different scenarios).
+
+```{r}
+summary(data)
+boxplot(frequency ~ attitude*gender, col=c("white","lightgray"),data= data)
+```
+
+### Question 2
+
+2. Fit a mixed effects model with random intercepts for different subjects (gender and attitude being the fixed effects). What is the covariance matrix for a subject Yi? What is the covariance matrix for the REML estimates of fixed effects (hint: 3*3 matrix for intercept, gender and at- titude)? What are the BLUPs for subject-specific intercepts? What are the residuals?
+```{r}
+m1 <- lmer(frequency ~ gender + attitude + (1|subject), REML = T, data = data)
+summary(m1)
+round(ranef(m1)$subject,2)
+residuals(m1)
+```
+
+### Question 3
+
+```{r}
+m2 <- lmer(frequency ~ gender + attitude + gender*attitude+ (1|subject), REML = T, data = data)
+summary(m2)
+ranef(m2)
+TS1 <- deviance(m1) - deviance(m2)
+p1 <- 1-pchisq(TS1, 1)
+anova(m2, m1)
+```
+
+### Question 4
+
+```{r}
+m3 <- lmer(frequency ~ gender + attitude + (1+attitude|subject), data = data)
+summary(m3)
+ranef(m3)
+```
+
